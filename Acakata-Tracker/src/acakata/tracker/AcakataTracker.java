@@ -18,17 +18,41 @@
 
 package acakata.tracker;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.util.ArrayList;
+
 /**
  *
  * @author Michael
  */
 public class AcakataTracker {
-
+    
+    public static int PORT;
+    
+    public static ArrayList<String> connectedPeers;
+    
+    public AcakataTracker(int port) throws IOException {
+        ServerSocket ss = new ServerSocket(port);
+        System.out.println("TRACKER STARTED");
+        while (true) {
+            new TrackerThread(ss.accept());
+        }
+    }
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         // TODO code application logic here
+        try {
+            PORT = 6969;
+            connectedPeers = new ArrayList<>();
+            System.out.println("STARTING SERVER");
+            new AcakataTracker(PORT);
+        } catch (IOException ex) {
+            System.err.println("CANNOT START SERVER");
+            System.exit(1);
+        }
     }
     
 }
