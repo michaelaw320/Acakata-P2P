@@ -18,17 +18,51 @@
 
 package acakata.p2p;
 
+import java.util.ArrayList;
+import java.util.Scanner;
+
 /**
  *
  * @author Michael
  */
 public class AcakataP2P {
-
+    private Scanner userInput;
+    private TrackerConn trackerConnection;
     /**
      * @param args the command line arguments
      */
+    
+    private AcakataP2P() {
+        userInput = new Scanner(System.in);
+        
+        System.out.println("Masukkan screen name:");
+        GameData.thisPeer = new Player(userInput.nextLine());
+        System.out.println("Masukkan soal anda:");
+        GameData.soal = userInput.nextLine();
+        GameData.shuffle();
+        
+        //connect to tracker
+        trackerConnection = new TrackerConn();
+        trackerConnection.start();
+        //establish serversocket
+        RecvManager.startManager();
+        //open socket connection
+        
+    }
+    
+    private void GameMode() {
+        String input = userInput.nextLine();
+        while(!input.equalsIgnoreCase("exit")) {
+            System.out.println(input);
+            input = userInput.nextLine();
+        }
+        
+    }
+    
     public static void main(String[] args) {
+        AcakataP2P Game = new AcakataP2P();
         // TODO code application logic here
+        Game.GameMode();
     }
     
 }
