@@ -18,19 +18,55 @@
 
 package acakata.p2p;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author Michael
  */
 public class SendManager {
-    public static ArrayList<Sender> SendList;
+    public static ArrayList<Sender> SendList = new ArrayList<>();
     
-    public static void addSenderToList(Sender addMe) {
+    public static synchronized void addSenderToList(Sender addMe) {
         SendList.add(addMe);
     }
-    public static void removeReceiverFromList(Sender remMe) {
+    public static synchronized void removeSenderFromList(Sender remMe) {
         SendList.remove(remMe); 
+    }
+    
+    public static void connectTo(String address) {
+        Sender conn = new Sender(address,55555);
+        addSenderToList(conn);
+    }
+    
+    public static void connectToUnconnected() {
+        new Thread (new Runnable () {
+                @Override
+                public void run() {
+                    for (int i = 0; i < AcakataP2P.connectionQueue.size(); i++) {
+                        String currentAddr = AcakataP2P.connectionQueue.get(i);
+                        System.out.println("CONNECTING TO : "+currentAddr);
+                        connectTo(currentAddr);
+                        AcakataP2P.addConnectedClients(currentAddr);
+                        AcakataP2P.removeQueue(currentAddr);
+                    }
+                }
+            }
+            ).start();
+    }
+    
+    public static void sendToAll(String Query, Object toSend) {
+        new Thread (new Runnable () {
+                @Override
+                public void run() {
+                   for (Sender currentSender : SendList) {
+                       currentSender.Send(Query, toSend);
+                   }
+                }
+        }
+        ).start();
     }
 }

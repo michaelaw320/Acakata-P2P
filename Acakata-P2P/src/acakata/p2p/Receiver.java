@@ -34,9 +34,11 @@ public class Receiver extends Thread {
     private ObjectInputStream in;
     private String Query;
     private String address;
+    private Object receivedObject;
     
     public Receiver(Socket socket){
         this.socket = socket;
+        System.out.println("Peer connected"+socket.getInetAddress());
         start();
     }
     
@@ -49,11 +51,24 @@ public class Receiver extends Thread {
             System.out.println("New peer connected to peer");
             address = socket.getInetAddress().toString().substring(1);
             System.out.println(address);
+            if(!AcakataP2P.connectedClients.contains(address) && !AcakataP2P.connectionQueue.contains(address)) {
+                SendManager.connectTo(address);
+            } else if (!AcakataP2P.connectedClients.contains(address) && AcakataP2P.connectionQueue.contains(address)) {
+                SendManager.connectTo(address);
+                AcakataP2P.removeQueue(address);
+            }
             //to do something with the address
             while(true) {
                 Query = (String) Receive();
+                receivedObject = Receive();
                 switch (Query) {
                     /* Do something here */
+                    case "TEST":
+                        System.out.println(receivedObject);
+                        break;
+                    default:
+                    System.out.println(Query);
+                    break;
                 }
             }
         } catch (Throwable t) {
@@ -64,6 +79,14 @@ public class Receiver extends Thread {
                 socket.close();
             } catch (IOException ex) {
                 System.err.println(ex);
+            }
+            for (int i = 0; i < SendManager.SendList.size(); i++) {
+                if (SendManager.SendList.get(i).getSendAddress().equals(address)) {
+                    SendManager.SendList.get(i).Send("X", "X");
+                    AcakataP2P.removeConnectedClients(address);
+                    //this should throw exception and sender closes itself
+                    break;
+                }
             }
         }        
     }

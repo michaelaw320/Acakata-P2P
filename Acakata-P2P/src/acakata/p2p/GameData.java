@@ -19,8 +19,6 @@
 package acakata.p2p;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  *
@@ -30,6 +28,7 @@ public class GameData {
     public static Player thisPeer;
     public static String soal;
     public static String soalAcak;
+    public static ArrayList<Player> playingPlayers;
     
     public static void shuffle() {
         char[] characters = soal.toCharArray();

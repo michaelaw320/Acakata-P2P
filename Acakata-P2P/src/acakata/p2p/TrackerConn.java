@@ -34,17 +34,17 @@ import java.util.logging.Logger;
  * @author Michael
  */
 public class TrackerConn extends Thread {
-    public static Socket connection = null;
-    public static ObjectOutputStream out;
-    public static ObjectInputStream in;
-    public static String trackerAddress;
-    public static int trackerPort;
+    private Socket connection = null;
+    private ObjectOutputStream out;
+    private ObjectInputStream in;
+    private String trackerAddress;
+    private int trackerPort;
     
     public TrackerConn() {
         
     }
     
-    public static void connect() throws IOException {
+    public void connect() throws IOException {
         /* Read trakcer configuration */
         
         try {
@@ -62,7 +62,7 @@ public class TrackerConn extends Thread {
             in = new ObjectInputStream(connection.getInputStream());
         }
     }
-    public static void Send(String toSend) {
+    public void Send(String toSend) {
         try {
             out.writeObject(toSend);
             out.flush();
@@ -71,14 +71,16 @@ public class TrackerConn extends Thread {
             System.out.println("Tracker disconnected, can't send anything to tracker.");
         }
     }
-    public static ArrayList ReceiveRoomlist() {
+    public void ReceiveRoomList() throws IOException {
         try {
-            return (ArrayList) in.readObject();
+            ArrayList<String> process = new ArrayList<>();
+            process = (ArrayList) in.readObject();
+            for (String current : process) {
+                if (!AcakataP2P.connectedClients.contains(current)) {
+                    AcakataP2P.addQueue(current);
+                }
+            }
         } catch (ClassNotFoundException ex) {
-            return null;
-        } catch (IOException ex) {
-            System.out.println("Tracker disconnected, can't receive anything from tracker.");
-            return null;
         }
     }
     
@@ -87,11 +89,16 @@ public class TrackerConn extends Thread {
     public void run() {
         try {
             connect();
+            while (true) {
+            try {
+                Send("UPDATE");
+                ReceiveRoomList();
+                Thread.sleep(20000);
+            } catch (InterruptedException ex) {
+            }
+        }
         } catch (IOException ex) {
             System.out.println("Cannot establish connection to tracker");
-        }
-        while (true) {
-            //wait
         }
     }
 }

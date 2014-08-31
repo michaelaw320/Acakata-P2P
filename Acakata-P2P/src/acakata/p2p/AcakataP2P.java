@@ -28,12 +28,16 @@ import java.util.Scanner;
 public class AcakataP2P {
     private Scanner userInput;
     private TrackerConn trackerConnection;
+    public static volatile ArrayList<String> connectedClients;
+    public static volatile ArrayList<String> connectionQueue;
     /**
      * @param args the command line arguments
      */
     
     private AcakataP2P() {
         userInput = new Scanner(System.in);
+        connectedClients = new ArrayList<>();
+        connectionQueue = new ArrayList<>();
         
         System.out.println("Masukkan screen name:");
         GameData.thisPeer = new Player(userInput.nextLine());
@@ -52,10 +56,17 @@ public class AcakataP2P {
     
     private void GameMode() {
         String input = userInput.nextLine();
+        SendManager.connectToUnconnected();
         while(!input.equalsIgnoreCase("exit")) {
             System.out.println(input);
+            if (input.equals("connect")) {
+                System.out.println("testblock");
+                String x = userInput.nextLine();
+                SendManager.sendToAll("TEST", x);
+            }
             input = userInput.nextLine();
         }
+
         
     }
     
@@ -65,4 +76,16 @@ public class AcakataP2P {
         Game.GameMode();
     }
     
+    public static synchronized void addConnectedClients(String add) {
+        connectedClients.add(add);
+    }
+    public static synchronized void removeConnectedClients(String rem) {
+        connectedClients.remove(rem);
+    }
+    public static synchronized void addQueue(String add) {
+        connectionQueue.add(add);
+    }
+    public static synchronized void removeQueue(String rem) {
+        connectionQueue.remove(rem);
+    }
 }
