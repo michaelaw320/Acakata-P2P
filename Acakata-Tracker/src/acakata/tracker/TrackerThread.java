@@ -74,7 +74,7 @@ public class TrackerThread extends Thread {
             try {
                 socket.close();
             } catch (IOException ex) {
-                System.err.println(ex);
+
             }
         }
     }
