@@ -22,6 +22,10 @@ package acakata.p2p;
  *
  * @author Michael
  */
-public class DisplayUpdater {
+public class DisplayUpdater extends Thread {
     
+    @Override
+    public void run() {
+        
+    }
 }

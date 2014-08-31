@@ -63,6 +63,11 @@ public class Receiver extends Thread {
                 receivedObject = Receive();
                 switch (Query) {
                     /* Do something here */
+                    case "START":
+                        GameData.addPlayertoList(((Player)receivedObject));
+                        System.out.println(((Player)receivedObject).getUserName()+" wanted to start the game, type start to start playing");
+                        GameData.incStartPlayer();
+                        break;
                     case "TEST":
                         System.out.println(receivedObject);
                         break;
@@ -74,7 +79,6 @@ public class Receiver extends Thread {
         } catch (Throwable t) {
             System.out.println("Peer disconnected");
             System.out.println(address);
-            System.out.println("Removing receiver");
             try {
                 socket.close();
             } catch (IOException ex) {

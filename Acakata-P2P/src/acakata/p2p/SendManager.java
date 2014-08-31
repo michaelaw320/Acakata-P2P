@@ -62,7 +62,8 @@ public class SendManager {
         new Thread (new Runnable () {
                 @Override
                 public void run() {
-                   for (Sender currentSender : SendList) {
+                   for (int i = 0; i < SendList.size(); i++) {
+                       Sender currentSender = SendList.get(i);
                        currentSender.Send(Query, toSend);
                    }
                 }

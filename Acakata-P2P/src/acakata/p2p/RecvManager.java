@@ -20,9 +20,6 @@ package acakata.p2p;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -36,12 +33,12 @@ public class RecvManager {
                 public void run() {
                 try {
                     ServerSocket ss = new ServerSocket(55555);
-                    System.out.println("Receiver Manager started");
                     while(true) {
                         new Receiver(ss.accept());
                     }
                 } catch (IOException ex) {
-            
+                    System.err.println("Cannot bind to port 55555, exiting");
+                    System.exit(1);
                 }
             }
         }

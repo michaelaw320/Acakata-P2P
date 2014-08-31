@@ -28,7 +28,9 @@ public class GameData {
     public static Player thisPeer;
     public static String soal;
     public static String soalAcak;
-    public static ArrayList<Player> playingPlayers;
+    public static ArrayList<Player> playingPlayers = new ArrayList();
+    public static volatile boolean gameStart;
+    public static volatile int startPlayer;
     
     public static void shuffle() {
         char[] characters = soal.toCharArray();
@@ -39,5 +41,12 @@ public class GameData {
             characters[randomIndex] = temp;
         }
         soalAcak = new String(characters);
+    }
+    
+    public static synchronized void addPlayertoList(Player add) {
+        playingPlayers.add(add);
+    }
+    public static synchronized void incStartPlayer() {
+        startPlayer++;
     }
 }

@@ -18,18 +18,139 @@
 
 package acakata.p2p;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Scanner;
+
 /**
  *
  * @author Michael
  */
-public class Player {
-    private String userName;
+public class Player implements Serializable {
+    private final String userName;
+    private int score;
     
-    public Player(String userName) {
-        this.userName = userName;
+    private int idx = -999; /*for update purpose only*/
+    
+    public Player(String playerName) {
+        userName = playerName;
+        queryPlayer();
+        System.out.println("PLAYER DATA:");
+        System.out.println("Name: " + userName);
+        System.out.println("Score: " + score);
+        System.out.println();
     }
     
     public String getUserName() {
         return userName;
     }
+    
+    public int getPlayerScore() {
+        return score;
+    }
+    
+    private synchronized void queryPlayer() {
+        File highscore = new File("highscore.txt");
+        boolean found = false;
+        try {
+            Scanner sc = new Scanner(highscore);
+            String[] processing;
+
+            while (sc.hasNextLine() && !found) {
+                processing = sc.nextLine().split(";");
+                if (processing[0].equals(userName)) {
+                    score = Integer.parseInt(processing[1]);
+                    found = true;
+                }
+            }
+
+        } catch (FileNotFoundException ex) {
+            System.err.println("Highscore.txt not found");
+            try {
+                highscore.createNewFile();
+            } catch (IOException ex1) {
+                
+            }
+        }
+    }
+    
+    public synchronized void updatePlayer() {
+        if (idx == -999) {
+            try {
+                File highscore = new File("highscore.txt");
+                FileWriter fw = new FileWriter(highscore,true);
+                BufferedWriter writer = new BufferedWriter(fw);
+                String add = userName + ";" + Integer.toString(score);
+                writer.write(add);
+                writer.newLine();
+                writer.close();
+            } catch (IOException ex) {
+                    System.err.println(ex);
+                }
+        } else {
+            if (isDifferent()) {
+                try {
+                    ArrayList<String> Data = new ArrayList<>();
+                    String replacement = userName + ";" + Integer.toString(score);
+
+                    File highscore = new File("highscore.txt");
+                    Scanner sc = new Scanner(highscore);
+
+                    while (sc.hasNextLine()) {
+                        Data.add(sc.nextLine());
+                    }
+
+                    Data.remove(idx);
+                    Data.add(replacement);
+
+                    FileWriter fw = new FileWriter(highscore);
+                    BufferedWriter writer = new BufferedWriter(fw);
+
+                    for (String Data1 : Data) {
+                        writer.write(Data1);
+                        writer.newLine();
+                    }
+
+                    writer.close();
+
+                } catch (IOException ex) {
+                    System.err.println(ex);
+                }
+            }
+        }
+        }
+    
+    
+    private synchronized boolean isDifferent() {
+        File highscore = new File("highscore.txt");
+        boolean diff = true;
+        try {
+            Scanner sc = new Scanner(highscore);
+            String[] processing;
+            boolean stop = false;
+            int i = 0;
+            while (sc.hasNextLine() && !stop) {
+                processing = sc.nextLine().split(";");
+                if (processing[0].equals(userName)) {
+                    diff = score != Integer.parseInt(processing[1]);
+                    stop = true;
+                    idx = i;
+                } else {
+                    i++;
+                }
+            }
+
+        } catch (FileNotFoundException ex) {
+            System.err.println("Highscore.txt not found");
+            highscore.createNewFile();
+        } finally {
+            return diff;
+        }
+    }
+    
 }
