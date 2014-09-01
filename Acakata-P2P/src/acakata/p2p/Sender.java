@@ -30,7 +30,7 @@ import java.util.logging.Logger;
  * @author Michael
  */
 public class Sender{
-    private Socket connection;
+    public Socket connection;
     private ObjectOutputStream out;
     private ObjectInputStream in;
     private final String peerAddress;
@@ -52,7 +52,7 @@ public class Sender{
         connection.setSoTimeout(15000);
         out = new ObjectOutputStream(connection.getOutputStream());
         in = new ObjectInputStream(connection.getInputStream());
-        System.out.println("CONNECTED TO: "+peerAddress);
+        System.out.println("SOCKET CONNECTED TO: "+peerAddress);
     }
     
     public void Send(String Query, Object toSend) {

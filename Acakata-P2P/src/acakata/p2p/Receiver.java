@@ -23,6 +23,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -38,7 +40,7 @@ public class Receiver extends Thread {
     
     public Receiver(Socket socket){
         this.socket = socket;
-        System.out.println("Peer connected"+socket.getInetAddress());
+        System.out.println("Receiver connected"+socket.getInetAddress());
         start();
     }
     
@@ -47,10 +49,7 @@ public class Receiver extends Thread {
         try {
             out = new ObjectOutputStream(socket.getOutputStream());
             in = new ObjectInputStream(socket.getInputStream());
-            System.out.println();
-            System.out.println("New peer connected to peer");
             address = socket.getInetAddress().toString().substring(1);
-            System.out.println(address);
             if(!AcakataP2P.connectedClients.contains(address) && !AcakataP2P.connectionQueue.contains(address)) {
                 SendManager.connectTo(address);
             } else if (!AcakataP2P.connectedClients.contains(address) && AcakataP2P.connectionQueue.contains(address)) {
@@ -72,7 +71,6 @@ public class Receiver extends Thread {
                         GameData.forDistribution = (ArrayList) receivedObject;
                         GameData.soalList = GameData.forDistribution.get(0);
                         GameData.jawabanList = GameData.forDistribution.get(1);
-                        System.out.println("SOAL RECEIVED");
                         break;
                     case "UPDATEPLAYER":
                         Player temp = (Player) receivedObject;
@@ -96,7 +94,11 @@ public class Receiver extends Thread {
             }
             for (int i = 0; i < SendManager.SendList.size(); i++) {
                 if (SendManager.SendList.get(i).getSendAddress().equals(address)) {
-                    SendManager.SendList.get(i).Send("X", "X");
+                    try {
+                        SendManager.SendList.get(i).connection.close();
+                    } catch (IOException ex) {
+                        
+                    }
                     AcakataP2P.removeConnectedClients(address);
                     //this should throw exception and sender closes itself
                     break;

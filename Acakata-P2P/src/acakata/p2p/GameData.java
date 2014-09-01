@@ -50,10 +50,6 @@ public class GameData {
         shuffleSoal();
         forDistribution.add(soalList);
         forDistribution.add(jawabanList);
-        for(int i = 0; i < soalList.size(); i++) {
-        System.out.println("Soal no "+i+" : "+soalList.get(i));
-        System.out.println("Jawaban no "+i+" : "+jawabanList.get(i));
-                }
     }
     
     public static synchronized void addSoalToList(Player data) {

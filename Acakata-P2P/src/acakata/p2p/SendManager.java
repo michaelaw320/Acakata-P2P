@@ -50,8 +50,6 @@ public class SendManager {
                 public void run() {
                     for (int i = 0; i < AcakataP2P.connectionQueue.size(); i++) {
                         String currentAddr = AcakataP2P.connectionQueue.get(i);
-                        System.out.println(AcakataP2P.connectedClients.contains(currentAddr));
-                        System.out.println("CONNECTING TO : "+currentAddr);
                         connectTo(currentAddr);
                     }
                 }
