@@ -26,8 +26,6 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -76,7 +74,7 @@ public class TrackerConn extends Thread {
             ArrayList<String> process = new ArrayList<>();
             process = (ArrayList) in.readObject();
             for (String current : process) {
-                if (!AcakataP2P.connectedClients.contains(current)) {
+                if (!AcakataP2P.connectedClients.contains(current) && !AcakataP2P.connectionQueue.contains(current)) {
                     AcakataP2P.addQueue(current);
                 }
             }

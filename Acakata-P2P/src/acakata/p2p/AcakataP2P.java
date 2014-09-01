@@ -34,16 +34,15 @@ public class AcakataP2P {
     public static volatile ArrayList<String> connectionQueue;
     private Thread peerCon;
     private Thread gameStartMonitor;
-    private DisplayUpdater disp;
-    /**
-     * @param args the command line arguments
-     */
+    private GameModeThread disp;
+
     
     private AcakataP2P() {
         userInput = new Scanner(System.in);
         connectedClients = new ArrayList<>();
         connectionQueue = new ArrayList<>();
         GameData.gameStart = false;
+        GameData.typedStart = false;
         GameData.startPlayer = 0;
         
         /* Thread construction */
@@ -65,21 +64,26 @@ public class AcakataP2P {
             public void run () {
                 boolean stop = false;
                 while(!stop) {
-                    if(GameData.startPlayer == (AcakataP2P.connectedClients.size()+1)) {
-                        stop = true;
+                    if((GameData.startPlayer == (AcakataP2P.connectedClients.size()+1)) && (GameData.startPlayer != 1)) {
+                        if(GameData.playingPlayers.get(0).equals(GameData.thisPeer)) {
+                            GameData.processAllSoal();
+                            SendManager.sendToAll("SOAL", GameData.forDistribution);
+                        }
                         GameData.gameStart = true;
+                        stop = true;
                     }
                 }
             }
         });
         
-        disp = new DisplayUpdater();
+        disp = new GameModeThread();
         
         System.out.println("Masukkan screen name:");
         GameData.thisPeer = new Player(userInput.nextLine());
         System.out.println("Masukkan soal anda:");
-        GameData.soal = userInput.nextLine();
-        GameData.shuffle();
+        GameData.thisPeer.soal = userInput.nextLine();
+        GameData.thisPeer.shuffle();
+        System.out.println("Soal anda setelah diacak: "+GameData.thisPeer.soalAcak);
         
         //connect to tracker
         trackerConnection = new TrackerConn();
@@ -94,11 +98,21 @@ public class AcakataP2P {
         peerCon.start();
         gameStartMonitor.start();
         while(!GameData.gameStart) {
-            String input = userInput.nextLine();
-            if(input.equalsIgnoreCase("start")) {
-                SendManager.sendToAll("START", GameData.thisPeer);
-                GameData.incStartPlayer();
-                GameData.addPlayertoList(GameData.thisPeer);
+            if(!GameData.typedStart) {
+                System.out.println("Type in 'start' to start the game");
+                String input = userInput.nextLine();
+                if(input.equalsIgnoreCase("start")) {
+                    GameData.incStartPlayer();
+                    GameData.addPlayertoList(GameData.thisPeer);
+                    SendManager.sendToAll("START", GameData.thisPeer);
+                    GameData.typedStart = true;
+                }
+            } else {
+                System.out.println("Waiting other player to type start");
+                try {
+                    gameStartMonitor.join();
+                } catch (InterruptedException ex) {
+                }
             }
         }
         GameMode();
@@ -115,6 +129,8 @@ public class AcakataP2P {
             if (input.equalsIgnoreCase("exit")) {
                 stop = true;
                 System.out.println("SHOULD STOP HERE");
+                GameData.thisPeer.updatePlayer();
+                System.exit(0);
             }
             else if (input.equals("connect")) {
                 System.out.println("testblock");
@@ -122,8 +138,7 @@ public class AcakataP2P {
                 SendManager.sendToAll("TEST", x);
             }
         }
-        GameData.thisPeer.updatePlayer();
-        System.exit(0);
+        
     }
     
     public static void main(String[] args) {

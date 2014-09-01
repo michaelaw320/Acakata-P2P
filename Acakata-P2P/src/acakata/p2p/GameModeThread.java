@@ -22,7 +22,7 @@ package acakata.p2p;
  *
  * @author Michael
  */
-public class DisplayUpdater extends Thread {
+public class GameModeThread extends Thread {
     
     @Override
     public void run() {

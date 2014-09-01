@@ -19,29 +19,22 @@
 package acakata.p2p;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
 
 /**
  *
  * @author Michael
  */
 public class GameData {
-    public static Player thisPeer;
-    public static String soal;
-    public static String soalAcak;
     public static ArrayList<Player> playingPlayers = new ArrayList();
     public static volatile boolean gameStart;
     public static volatile int startPlayer;
-    
-    public static void shuffle() {
-        char[] characters = soal.toCharArray();
-        for (int i = 0; i < characters.length; i++) {
-            int randomIndex = (int)(Math.random() * characters.length);
-            char temp = characters[i];
-            characters[i] = characters[randomIndex];
-            characters[randomIndex] = temp;
-        }
-        soalAcak = new String(characters);
-    }
+    public static boolean typedStart;
+    public static ArrayList<String> soalList = new ArrayList();
+    public static ArrayList<String> jawabanList = new ArrayList();
+    public static Player thisPeer;
+    public static ArrayList<ArrayList<String>> forDistribution = new ArrayList(new ArrayList());
     
     public static synchronized void addPlayertoList(Player add) {
         playingPlayers.add(add);
@@ -49,4 +42,29 @@ public class GameData {
     public static synchronized void incStartPlayer() {
         startPlayer++;
     }
+    
+    public static void processAllSoal() {
+        for(int i = 0; i < playingPlayers.size(); i++) {
+            addSoalToList(playingPlayers.get(i));
+        }
+        shuffleSoal();
+        forDistribution.add(soalList);
+        forDistribution.add(jawabanList);
+        for(int i = 0; i < soalList.size(); i++) {
+        System.out.println("Soal no "+i+" : "+soalList.get(i));
+        System.out.println("Jawaban no "+i+" : "+jawabanList.get(i));
+                }
+    }
+    
+    public static synchronized void addSoalToList(Player data) {
+        soalList.add(data.soalAcak);
+        jawabanList.add(data.soal);
+    }
+    
+    public static void shuffleSoal() {
+        long seed = System.nanoTime();
+        Collections.shuffle(soalList, new Random(seed));
+        Collections.shuffle(jawabanList, new Random(seed));
+    }
+    
 }

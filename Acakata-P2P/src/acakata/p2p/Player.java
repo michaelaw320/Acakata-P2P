@@ -32,6 +32,8 @@ import java.util.Scanner;
  * @author Michael
  */
 public class Player implements Serializable {
+    public String soalAcak;
+    public String soal;
     private final String userName;
     private int score;
     
@@ -151,6 +153,17 @@ public class Player implements Serializable {
         } finally {
             return diff;
         }
+    }
+    
+    public void shuffle() {
+        char[] characters = soal.toCharArray();
+        for (int i = 0; i < characters.length; i++) {
+            int randomIndex = (int) (Math.random() * characters.length);
+            char temp = characters[i];
+            characters[i] = characters[randomIndex];
+            characters[randomIndex] = temp;
+        }
+        soalAcak = new String(characters);
     }
     
 }

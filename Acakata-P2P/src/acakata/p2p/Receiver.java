@@ -68,6 +68,12 @@ public class Receiver extends Thread {
                         System.out.println(((Player)receivedObject).getUserName()+" wanted to start the game, type start to start playing");
                         GameData.incStartPlayer();
                         break;
+                    case "SOAL":
+                        GameData.forDistribution = (ArrayList) receivedObject;
+                        GameData.soalList = GameData.forDistribution.get(0);
+                        GameData.jawabanList = GameData.forDistribution.get(1);
+                        System.out.println("SOAL RECEIVED");
+                        break;
                     case "TEST":
                         System.out.println(receivedObject);
                         break;
