@@ -31,8 +31,8 @@ public class GameData {
     public static volatile boolean gameStart;
     public static volatile int startPlayer;
     public static boolean typedStart;
-    public static ArrayList<String> soalList = new ArrayList();
-    public static ArrayList<String> jawabanList = new ArrayList();
+    public static volatile ArrayList<String> soalList = new ArrayList();
+    public static volatile ArrayList<String> jawabanList = new ArrayList();
     public static Player thisPeer;
     public static ArrayList<ArrayList<String>> forDistribution = new ArrayList(new ArrayList());
     

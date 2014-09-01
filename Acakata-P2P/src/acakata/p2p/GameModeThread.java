@@ -18,14 +18,56 @@
 
 package acakata.p2p;
 
+import java.util.Timer;
+
 /**
  *
  * @author Michael
  */
 public class GameModeThread extends Thread {
+    private String currentSoal;
+    private Player thisPlayer;
+    
+    public GameModeThread(Player thisPlayer) {
+        this.thisPlayer = thisPlayer;
+    }
     
     @Override
     public void run() {
-        
+        //1. keluarkan soal
+        //2. tunggu 10 detik
+        //3. delet soal dan jawaban, keluarkan soal baru, repeat 2
+        while(GameData.soalList.isEmpty()) {
+            //wait
+        }
+        while(!GameData.soalList.isEmpty()) {
+            currentSoal = GameData.soalList.get(0);
+            System.out.println("Soal: "+currentSoal);
+            if(!thisPlayer.soalAcak.equals(currentSoal)) {
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException ex) {
+                }
+                GameData.soalList.remove(0);
+                GameData.jawabanList.remove(0);
+                AcakataP2P.answered = false;
+            } else {
+                AcakataP2P.answered = true;
+                System.out.println("Harap menunggu, soal anda sedang tampil");
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException ex) {
+                }
+                GameData.soalList.remove(0);
+                GameData.jawabanList.remove(0);
+                AcakataP2P.answered = false;
+            }
+        }
+        System.out.println("PERMAINAN SELESAI");
+        AcakataP2P.gameSelesai = true;
+        for (int i = 0; i < GameData.playingPlayers.size();i++) {
+            GameData.playingPlayers.get(i).updatePlayer();
+        }
+        System.exit(0);
     }
 }

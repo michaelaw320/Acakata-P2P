@@ -74,12 +74,16 @@ public class Receiver extends Thread {
                         GameData.jawabanList = GameData.forDistribution.get(1);
                         System.out.println("SOAL RECEIVED");
                         break;
-                    case "TEST":
-                        System.out.println(receivedObject);
+                    case "UPDATEPLAYER":
+                        Player temp = (Player) receivedObject;
+                        for(int i = 0; i < GameData.playingPlayers.size();i++) {
+                            if(GameData.playingPlayers.get(i).getUserName().equals(temp.getUserName())) {
+                                GameData.playingPlayers.remove(i);
+                                GameData.playingPlayers.add(temp);
+                                break;
+                            }
+                        }
                         break;
-                    default:
-                    System.out.println(Query);
-                    break;
                 }
             }
         } catch (Throwable t) {

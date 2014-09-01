@@ -56,6 +56,10 @@ public class Player implements Serializable {
         return score;
     }
     
+    public void incScore() {
+        score++;
+    }
+    
     private synchronized void queryPlayer() {
         File highscore = new File("highscore.txt");
         boolean found = false;

@@ -35,6 +35,8 @@ public class AcakataP2P {
     private Thread peerCon;
     private Thread gameStartMonitor;
     private GameModeThread disp;
+    public static volatile boolean answered;
+    public static volatile boolean gameSelesai;
 
     
     private AcakataP2P() {
@@ -44,6 +46,8 @@ public class AcakataP2P {
         GameData.gameStart = false;
         GameData.typedStart = false;
         GameData.startPlayer = 0;
+        answered = false;
+        gameSelesai = false;
         
         /* Thread construction */
         peerCon = new Thread(new Runnable() {
@@ -76,7 +80,7 @@ public class AcakataP2P {
             }
         });
         
-        disp = new GameModeThread();
+        
         
         System.out.println("Masukkan screen name:");
         GameData.thisPeer = new Player(userInput.nextLine());
@@ -84,6 +88,8 @@ public class AcakataP2P {
         GameData.thisPeer.soal = userInput.nextLine();
         GameData.thisPeer.shuffle();
         System.out.println("Soal anda setelah diacak: "+GameData.thisPeer.soalAcak);
+        
+        disp = new GameModeThread(GameData.thisPeer);
         
         //connect to tracker
         trackerConnection = new TrackerConn();
@@ -120,25 +126,24 @@ public class AcakataP2P {
     
     private void GameMode() {
         System.out.println("You're in game mode!");
-        boolean stop = false;
         String input;
-        while(!stop) {
-            System.out.print("Query: ");
-            input = userInput.nextLine();
-            System.out.println(input);
-            if (input.equalsIgnoreCase("exit")) {
-                stop = true;
-                System.out.println("SHOULD STOP HERE");
-                GameData.thisPeer.updatePlayer();
-                System.exit(0);
-            }
-            else if (input.equals("connect")) {
-                System.out.println("testblock");
-                String x = userInput.nextLine();
-                SendManager.sendToAll("TEST", x);
+        disp.start();
+        while(!gameSelesai) {
+            if(!GameData.soalList.isEmpty()) {
+                if(!GameData.thisPeer.soalAcak.equals(GameData.soalList.get(0))) {
+                    if(!answered) {
+                        System.out.print("Answer: ");
+                        input = userInput.nextLine();
+                        if(isAnswerCorrect(input)) {
+                            answered = true;
+                            System.out.println("JAWABAN ANDA BENAR!");
+                            GameData.thisPeer.incScore();
+                            SendManager.sendToAll("UPDATEPLAYER", GameData.thisPeer);
+                        }
+                    }
+                }
             }
         }
-        
     }
     
     public static void main(String[] args) {
@@ -157,6 +162,10 @@ public class AcakataP2P {
     }
     public static synchronized void removeQueue(String rem) {
         connectionQueue.remove(rem);
+    }
+    
+    private boolean isAnswerCorrect(String input) {
+        return GameData.jawabanList.get(0).equals(input);
     }
     
 }
